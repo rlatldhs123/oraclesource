@@ -44,5 +44,50 @@ FROM EMPLOYEES e
 WHERE 
 
 
+--FIRST_NAME 이  'curtis' 인 사원의  first_NAME, LAST_NAME, EAILL,PHON_NUMBER,JOB _ID 를 
+--조회한다 .단 JOB_ID 는 소문자로 출력 된다
+
+SELECT  FIRST_NAME,LAST_NAME,EMAIL ,PHONE_NUMBER ,LOWER(JOB_ID)
+FROM EMPLOYEES e 
+WHERE FIRST_NAME ='Curtis';
+
+--부서 번호가 60 70 80 90 인 사원들의 employee_id, first_name,hire_date , job_id 조회
+
+SELECT employee_id,first_name,hire_date,REPLACE (job_id,'IT_PROG','프로그래머')
+FROM EMPLOYEES e 
+WHERE DEPARTMENT_ID in(60,70,80,90);
+
+
+
+SELECT  LAST_NAME 
+FROM EMPLOYEES e 
+WHERE LAST_NAME LIKE '%u%';
+
+SELECT  LAST_NAME
+FROM EMPLOYEES e 
+WHERE LAST_NAME LIKE '%a%' OR LAST_NAME LIKE '%e%'
+ORDER BY LAST_NAME DESC;
+
+
+SELECT *
+FROM EMPLOYEES e;
+
+
+
+
+
+
+
+
+
+
+
+
+-
+
+
+
+
+
 
 
