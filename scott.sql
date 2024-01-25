@@ -636,31 +636,330 @@ FROM
 
 
 
- 
+ SELECT MGR ,ENAME ,EMPNO 
+ FROM EMP e
   
+
+ SELECT MGR ,ENAME ,EMPNO ,DECODE(SUBSTR(TO_CHAR(MGR),1,2),NULL ,'0000','75','5555','76','6666','77','7777','78','8888',SUBSTR(TO_CHAR(MGR),1) ) AS CHG_MGR
+ FROM EMP e ;
+
+           
+SELECT MGR ,ENAME ,EMPNO 
+      
+		WHEN MGR IS NULL THEN '0000'
+		WHEN (SUBSTR(TO_CHAR(MGR), 1, 2) = '75' THEN '5555'
+		WHEN (SUBSTR(TO_CHAR(MGR), 1, 2) = '76' THEN '6666'
+		WHEN (SUBSTR(TO_CHAR(MGR), 1, 2) = '77' THEN '7777'
+		WHEN (SUBSTR(TO_CHAR(MGR), 1, 2) = '78' THEN '8888'
+		ELSE TO_CHAR(MGR)
+	END AS CHG_MGR
+FROM EMP e ;
+
+
+
+    SUBSTR(TO_CHAR(NVL(MGR,0)
   
-  
+--단일 그룹의 그룹 함수가 아닙니다  'ENAME'을 (넣었을시 여러 행이 나올 수 있는 컬럼을 추가한 경우)
 
-            
-
-
-
-
+   -- 동일한 급여를 하나만 선택해서 합계 --DISTINCT 을 사용해서 중복 값 제거
     
+    
+    SELECT SUM(DISTINCT SAL)
+    FROM EMP e;
+   
+   
+   
+    SELECT COUNT(*)     
+    FROM EMP e
+   WHERE DEPTNO = 30;
+   
+      --부서번호가 30인 사원 수를 세고싶다
+   
+    SELECT COUNT(*)     
+    FROM EMP e;
+   WHERE DEPTNO = 30;
   
+  --부서번호가 30인 사원 중에서 급여의 최대 값
+  
+ SELECT MAX(SAL)
+ FROM EMP e 
+ WHERE DEPTNO = 30;
+
+--부서번호가 20인 사원의 입사일 중에서 제일 최근 입사일 조회
+
+SELECT MAX(HIREDATE) 
+FROM EMP e 
+WHERE DEPTNO = 20;
+  
+
+--부서번호가 20인 사원의 입사일 중에서 제일 먼저 입사한 사람 조회
+
+SELECT MIN(HIREDATE) 
+FROM EMP e 
+WHERE DEPTNO = 20;
+
+
+
+--부서번호가 30번인 사원중에서 SAL 중복값을 제거 한후 평균 값을 구하기
+
+
+SELECT AVG(DISTINCT SAL) 
+FROM EMP e 
+WHERE DEPTNO = 30;
+
+
+
+
+SELECT SUM(SAL) 
+FROM EMP e 
+WHERE DEPTNO = 10
+UNION 
+SELECT SUM(SAL) 
+FROM EMP e 
+WHERE DEPTNO = 20
+UNION 
+SELECT SUM(SAL) 
+FROM EMP e 
+WHERE DEPTNO = 30;
+
+
+
+--결과 값을 원하는 열로 묶기: GROUP BY 
+
+SELECT 보고싶은 컬럼(열이름)                            ①
+FROM 테이블명                                           ②
+WHERE 조건들 나열                                       ③
+ORDER BY 정렬 조건                                      ④
+GROUP  BY 그룹화 할 열 이름 ... ,(HAVING -OPTION)       ⑤
+
+
+
+SELECT DEPTNO,SUM(SAL) 
+FROM EMP e 
+GROUP BY DEPTNO;
+   
+   
+  --부서별 평균
 
 
 
       
-       
-       
+SELECT DEPTNO,TRUNC(AVG(SAL)) 
+FROM EMP e 
+GROUP BY DEPTNO;
+   
+
+
+-- 부서번호, 직무별 급여 평균
+
+SELECT DEPTNO,JOB ,TRUNC(AVG(SAL)) 
+FROM EMP e 
+GROUP BY DEPTNO 
+GROUP BY JOB;
+
+
+-- 부서별 직책의 평균 급여가 500 이상인 사원들의 부서번호,직책,부서별 직책 평균
+
+HAVIG: GROUP BY 절에 조건을 주고 싶을떄 사용한다
+
+SELECT DEPTNO ,job,AVG(SAL) 
+FROM EMP e 
+GROUP BY DEPTNO ,JOB HAVING AVG(SAL)  >= 500
+ORDER BY DEPTNO ,JOB;
+
+
+ 
+
+
+
+SELECT DEPTNO ,job,AVG(SAL) 
+FROM EMP e 
+WHERE SAL <= 3000
+GROUP BY DEPTNO ,JOB HAVING AVG(SAL)  >= 2000
+ORDER BY DEPTNO ,JOB;
        
        
        
  
+--같은 직무에 종사하는 사원이 3명 이상인 직무와 인원수를 조회
+
+SELECT JOB,COUNT(EMPNO)
+FROM EMP e 
+GROUP BY JOB  HAVING  COUNT(JOB) >= 3;
+
+
+
+-- 사원들의 입사연도를 기준으로 부서별 몇명이 입사 했는지 조회
+
+SELECT DEPTNO ,TO_CHAR(HIREDATE,'YYYY'),COUNT(*) AS 인원수
+FROM EMP e
+GROUP BY TO_CHAR(HIREDATE,'YYYY'),DEPTNO
+ORDER BY DEPTNO ASC;
+
+
+
+
         
+
+
+ SELECT E.ENAME,E.SAL,D.LOC,D.DEPTNO ,D.DNAME 
+FROM EMP e ,DEPT d;
+
+
+SELECT E.ENAME,E.SAL,D.LOC,D.DEPTNO ,D.DNAME 
+FROM EMP e ,DEPT d 
+WHERE e.DEPTNO = D.DEPTNO  AND e.SAL >= 3000;
        
+
+
+
+SELECT E.ENAME,E.SAL,D.LOC,D.DEPTNO ,D.DNAME 
+FROM EMP e INNER JOIN DEPT d ON e.DEPTNO = D.DEPTNO
+WHERE  e.SAL >= 3000;
+
+
+-- EMP , SALGRADE 조인
+
+SELECT *
+FROM EMP e ,SALGRADE s 
+WHERE E.SAL BETWEEN S.LOSAL  AND S.HISAL;
+
+--EMP ,EMP 와 조인 (SELP 조인)
+
+SELECT E.EMPNO,E.ENAME ,E2.ENAME AS MGR_NAME
+FROM EMP e ,EMP e2 
+WHERE e.MGR =E2.EMPNO;
+
+
+SELECT 
+
+
+--JOB 이 MANGER 라면 SAL * 1.1 을 해서 인상 급여 구하기
+--JOB 이 SAKESMAN 라면 SAL * 1.05 을 인상 급여 구하기
+--JOB 이 ANALYST 라면 SAL 을 인상 급여 구하기
+--나머지 직무들은 SAL * 1.03 을 인상 급여 구하기
        
+SELECT
+	JOB ,
+	SAL,
+	CASE
+		WHEN JOB = 'MANAGER' THEN SAL * 1.1
+		WHEN JOB = 'SAKESMAN' THEN SAL * 1.2
+		WHEN JOB = 'ANALYST' THEN SAL * 1.3
+		ELSE SAL * 1.1  
+	END AS 연봉
+FROM
+		EMP e;
+	
+	
+	
+	--EMP ,EMP 와 조인 (SELP 조인)
+
+SELECT E.EMPNO,E.ENAME ,E2.ENAME AS MGR_NAME
+FROM EMP e ,EMP e2 
+WHERE e.MGR =E2.EMPNO;
+
+
+--3. 외부조인
+-- (1).왼쪽 외부조인
+-- (2). 오른쪽 외부조인
+
+
+SELECT E.EMPNO,E.ENAME ,E2.ENAME,E.MGR AS MGR_NAME
+FROM EMP e LEFT OUTER JOIN EMP e2 ON E.MGR = E2.EMPNO; 
+WHERE e.MGR =E2.EMPNO
+
+
+
+SELECT E.EMPNO,E.ENAME ,E2.ENAME,E.MGR AS MGR_NAME
+FROM EMP e RIGHT OUTER JOIN EMP e2 ON E.MGR = E2.EMPNO; 
+
+
+
+SELECT 
+FROM EMP e JOIN FULL WHERE 
+
+
+
+
+-- 각 부서별 평균 급여 ,최대 급여,최소 급여,사원수
+-- 부서번호, 부서명(DEPT 테이블에 있음),평균급여,최대급여,최소 급여,사원수 
+
+
+SELECT E.DEPTNO ,D.DNAME, MIN(SAL),MAX(SAL),COUNT(SAL)  
+FROM EMP e JOIN DEPT d ON E.DEPTNO  =D.DEPTNO 
+GROUP BY E.DEPTNO,D.DNAME ;
+
+
+
+-- 세게의 테이블 조인하기
+
+
+SELECT *
+FROM
+	EMP e1
+JOIN EMP e2 ON
+	E1.EMPNO = E2.EMPNO
+JOIN EMP e3 ON
+	E2.EMPNO = E3.EMPNO
+	JOIN
+	
+	
+	--모든 부서 정보와 사원 정보를 출력을 하고 싶다
+	--부서번호, 사원 이름순으로 정렬해서 출력을 하라
+	--부서본호, 부서명, 사원번호, 사원명, 직무, 급여
+	--기준이 DEPT 테이블이 기준으로 출력
+	
+	
+	SELECT D.DEPTNO ,D.DNAME ,E.EMPNO ,E.ENAME ,E.JOB,E.SAL 
+	FROM DEPT d LEFT OUTER JOIN EMP e  ON D.DEPTNO = E.DEPTNO 
+	ORDER BY D.DEPTNO ,E.ENAME ;
+
+
+
+	SELECT D.DEPTNO ,D.DNAME ,E.EMPNO ,E.ENAME ,E.JOB,E.SAL 
+	FROM EMP E LEFT OUTER JOIN DEPT d  ON D.DEPTNO = E.DEPTNO 
+	ORDER BY D.DEPTNO ,E.ENAME ;
+
+
+--모든 부서 정보와 사원 정보를 출력을 하고 싶다
+	--부서번호, 사원 이름순으로 정렬해서 출력을 하라
+	--부서본호, 부서명, 사원번호, 사원명, 직무, 급여, LOSAL,HISAL,GRADE
+	--기준이 DEPT 테이블이 기준으로 출력
+	
+
+
+SELECT
+	D.DEPTNO ,
+	D.DNAME ,
+	E.EMPNO ,
+	E.ENAME ,
+	E.JOB,
+	E.SAL,
+	S.GRADE,
+	S.LOSAL,
+	S.HISAL 
+FROM
+	EMP E
+LEFT OUTER JOIN DEPT d ON
+	D.DEPTNO = E.DEPTNO
+	JOIN SALGRADE s  
+ORDER BY
+	D.DEPTNO ,
+	E.ENAME ;
+
+
+
+SELECT
+	*
+FROM
+	EMP E
+RIGHT OUTER JOIN DEPT d ON
+	E.DEPTNO = D.DEPTNO
+ LEFT OUTER JOIN SALGRADE s ON E.SAL BETWEEN S.LOSAL AND S.HISAL 
+ORDER BY
+	D.DEPTNO ,
+	E.ENAME ;
 
 
 
@@ -681,6 +980,25 @@ FROM
 
 
 
+SELECT
+	*
+FROM
+	EMP E
+RIGHT OUTER JOIN DEPT d ON
+	E.DEPTNO = D.DEPTNO
+LEFT OUTER JOIN SALGRADE s ON
+	E.SAL BETWEEN S.LOSAL AND S.HISAL
+ORDER BY
+	D.DEPTNO ,
+	E.ENAME ;
+
+
+
+
+
+
+SELECT *
+FROM EMP e JOIN DEPT d ON 
 
 
 
@@ -688,7 +1006,42 @@ FROM
 
 
 
-   
-   
-   
-   
+
+		
+	
+	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
